@@ -6,6 +6,10 @@ module javafxProject {
 	
 	opens gui to javafx.fxml;
 	exports gui;
+	
 	opens gui.util to javafx.fxml;
 	exports gui.util;
+	
+	opens model.entities to javafx.fxml;
+	exports model.entities;
 }
