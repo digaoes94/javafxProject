@@ -3,6 +3,7 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
 import application.Main;
 import gui.util.Alerts;
@@ -15,6 +16,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import model.services.DepartmentService;
 
 public class MainViewController implements Initializable {
 	@FXML private MenuItem miSeller;
@@ -26,11 +28,13 @@ public class MainViewController implements Initializable {
 	}
 	
 	@FXML public void onMiDepartmentAction() {
-		loadView("/gui/DepartmentList.fxml");
+		loadView("/gui/DepartmentList.fxml", 
+				(DepartmentListController controller) -> {controller.setDepartmentService(new DepartmentService()); controller.updateTableView();}
+		);
 	}
 	
 	@FXML public void onAboutAction() {
-		loadView("/gui/About.fxml");
+		loadView("/gui/About.fxml", x -> {});
 	}
 
 	@Override
@@ -39,7 +43,7 @@ public class MainViewController implements Initializable {
 
 	}
 	
-	private void loadView(String absoluteName) {
+	private synchronized <T> void loadView(String absoluteName, Consumer<T> initializingAction) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(absoluteName));
 			VBox vbox = loader.load();
@@ -52,6 +56,9 @@ public class MainViewController implements Initializable {
 			
 			mainVbox.getChildren().add(mainMenu);
 			mainVbox.getChildren().addAll(vbox.getChildren());
+			
+			T controller = loader.getController();
+			initializingAction.accept(controller);
 		}
 		catch(IOException e) {
 			Alerts.showAlert("I/O exception", "Could not load view", e.getMessage(), AlertType.ERROR);
