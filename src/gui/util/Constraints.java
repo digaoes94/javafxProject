@@ -20,9 +20,9 @@ public class Constraints {
 	}
 
 
-	public static void setTextMaxLength(TextField text) {
+	public static void setTextMaxLength(TextField text, Integer max) {
 		text.textProperty().addListener((obs, oldValue, newValue) -> {
-			if(newValue != null && !newValue.matches("\\d*")) {
+			if(newValue != null && newValue.length() > max) {
 				text.setText(oldValue);
 			}
 		});
