@@ -12,8 +12,14 @@ module javafxProject {
 	opens gui.util to javafx.fxml;
 	exports gui.util;
 	
+	opens gui.listeners to javafx.fxml;
+	exports gui.listeners;
+	
 	opens model.entities to javafx.fxml;
 	exports model.entities;
+	
+	opens model.exceptions to javafx.fxml;
+	exports model.exceptions;
 	
 	opens model.services to javafx.fxml;
 	exports model.services;

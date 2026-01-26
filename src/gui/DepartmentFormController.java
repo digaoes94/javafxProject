@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.DbException;
 import gui.listeners.DataChangeListener;
@@ -18,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Department;
+import model.exceptions.ValidationException;
 import model.services.DepartmentService;
 
 public class DepartmentFormController implements Initializable {
@@ -58,6 +61,9 @@ public class DepartmentFormController implements Initializable {
 			informDataUpdate();
 			Utils.currentStage(event).close();
 		}
+		catch(ValidationException e) {
+			setErrorMessages(e.getErrors());
+		}
 		catch(DbException e) {
 			Alerts.showAlert("Error saving department.", null, e.getMessage(), AlertType.ERROR);
 		}
@@ -86,6 +92,15 @@ public class DepartmentFormController implements Initializable {
 	}
 	
 	private Department getFormData() {
+		ValidationException errors = new ValidationException("Validation error");
+		if(txtNAME.getText() == null || txtNAME.getText().trim().equals("")) {
+			errors.addError("Name", "Name can't be null.");
+		}
+		
+		if(errors.getErrors().size() > 0) {
+			throw errors;
+		}
+		
 		return new Department(Utils.stringToInteger(txtID.getId()), txtNAME.getText());
 	}
 	
@@ -96,5 +111,12 @@ public class DepartmentFormController implements Initializable {
 		
 		txtID.setText(String.valueOf(department.getId()));
 		txtNAME.setText(department.getName());
+	}
+	
+	private void setErrorMessages(Map<String, String> errors) {
+		Set<String> fields = errors.keySet();
+		if(fields.contains("Name")) {
+			errorLabel.setText(errors.get("Name"));
+		}
 	}
 }
