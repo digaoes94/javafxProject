@@ -28,13 +28,14 @@ import model.services.DepartmentService;
 
 public class DepartmentListController implements Initializable {
 	private DepartmentService service;
+	
 	@FXML private TableView<Department> tableViewDepartment;
 	@FXML private TableColumn<Department, Integer> columnID;
 	@FXML private TableColumn<Department, String> columnNAME;
 	
 	@FXML private Button newDepartment;
 	@FXML private void onNewDepartment(ActionEvent event) {
-		Stage parentStage = Utils.currenteStage(event);
+		Stage parentStage = Utils.currentStage(event);
 		Department department = new Department();
 		createDialogForm(department, "/gui/DepartmentForm.fxml", parentStage);
 	}
@@ -76,6 +77,7 @@ public class DepartmentListController implements Initializable {
 			
 			DepartmentFormController controller = loader.getController();
 			controller.setDepartment(department);
+			controller.setDepartmentService(service);
 			controller.updateFormData();
 			
 			Stage dialogStage = new Stage();
