@@ -1,9 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import db.DbException;
+import gui.listeners.DataChangeListener;
 import gui.util.Alerts;
 import gui.util.Constraints;
 import gui.util.Utils;
@@ -20,6 +23,7 @@ import model.services.DepartmentService;
 public class DepartmentFormController implements Initializable {
 	private Department department;
 	private DepartmentService service;
+	private List<DataChangeListener> observedDataUpdates = new ArrayList<DataChangeListener>();
 	
 	@FXML private TextField txtID;
 	@FXML private TextField txtNAME;
@@ -35,6 +39,10 @@ public class DepartmentFormController implements Initializable {
 		this.service = service;
 	}
 	
+	public void subscribeDataUpdates(DataChangeListener listener) {
+		observedDataUpdates.add(listener);
+	}
+	
 	@FXML public void onSave(ActionEvent event) {
 		if(department == null) {
 			throw new IllegalStateException("No Department instance avaible.");
@@ -47,11 +55,19 @@ public class DepartmentFormController implements Initializable {
 		try {
 			department = getFormData();
 			service.saveOrUpdate(department);
+			informDataUpdate();
 			Utils.currentStage(event).close();
 		}
 		catch(DbException e) {
 			Alerts.showAlert("Error saving department.", null, e.getMessage(), AlertType.ERROR);
 		}
+	}
+
+	private void informDataUpdate() {
+		for(DataChangeListener listener : observedDataUpdates) {
+			listener.onDataChange();
+		}
+		
 	}
 
 	@FXML public void onCancel(ActionEvent event) {
