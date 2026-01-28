@@ -1,7 +1,7 @@
 package gui;
 
-import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -16,9 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -26,8 +24,6 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.Pane;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
 import model.services.SellerService;
@@ -38,6 +34,9 @@ public class SellerListController implements Initializable, DataChangeListener {
 	@FXML private TableView<Seller> tableViewSeller;
 	@FXML private TableColumn<Seller, Integer> columnID;
 	@FXML private TableColumn<Seller, String> columnNAME;
+	@FXML private TableColumn<Seller, String> columnEMAIL;
+	@FXML private TableColumn<Seller, Date> columnBIRTH;
+	@FXML private TableColumn<Seller, Double> columnSALARY;
 	@FXML private TableColumn<Seller, Seller> columnEDIT;
 	@FXML private TableColumn<Seller, Seller> columnDELETE;
 
@@ -63,6 +62,13 @@ public class SellerListController implements Initializable, DataChangeListener {
 	private void initializeNodes() {
 		columnID.setCellValueFactory(new PropertyValueFactory<>("id"));
 		columnNAME.setCellValueFactory(new PropertyValueFactory<>("name"));
+		columnEMAIL.setCellValueFactory(new PropertyValueFactory<>("email"));
+		
+		columnBIRTH.setCellValueFactory(new PropertyValueFactory<>("birth"));
+		Utils.formatTableColumnDate(columnBIRTH, "dd/MM/yyyy");
+		
+		columnSALARY.setCellValueFactory(new PropertyValueFactory<>("salary"));
+		Utils.formatTableColumnDouble(columnSALARY, 2);
 
 		Stage stage = (Stage) Main.getMainScene().getWindow();
 		tableViewSeller.prefHeightProperty().bind(stage.heightProperty());
