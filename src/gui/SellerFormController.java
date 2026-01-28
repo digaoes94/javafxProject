@@ -1,8 +1,12 @@
 package gui;
 
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -17,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import model.entities.Seller;
@@ -29,8 +34,19 @@ public class SellerFormController implements Initializable {
 	private List<DataChangeListener> observedDataUpdates = new ArrayList<DataChangeListener>();
 	
 	@FXML private TextField txtID;
+	
 	@FXML private TextField txtNAME;
-	@FXML private Label errorLabel;
+	@FXML private Label errorLabel1;
+	
+	@FXML private TextField txtEMAIL;
+	@FXML private Label errorLabel2;
+	
+	@FXML private DatePicker txtBIRTH;
+	@FXML private Label errorLabel3;
+	
+	@FXML private TextField txtSALARY;
+	@FXML private Label errorLabel4;
+	
 	@FXML private Button save;
 	@FXML private Button cancel;
 	
@@ -88,11 +104,15 @@ public class SellerFormController implements Initializable {
 	
 	private void initializeNodes() {
 		Constraints.setTextFieldInteger(txtID);
-		Constraints.setTextMaxLength(txtNAME, 30);
+		Constraints.setTextMaxLength(txtNAME, 70);
+		Constraints.setTextMaxLength(txtEMAIL, 40);
+		Utils.formatDatePicker(txtBIRTH, "dd/MM/yyyy");
+		Constraints.setTextFieldDouble(txtSALARY);
 	}
 	
 	private Seller getFormData() {
 		ValidationException errors = new ValidationException("Validation error");
+		
 		if(txtNAME.getText() == null || txtNAME.getText().trim().equals("")) {
 			errors.addError("Name", "Name can't be null.");
 		}
@@ -111,12 +131,20 @@ public class SellerFormController implements Initializable {
 		
 		txtID.setText(String.valueOf(seller.getId()));
 		txtNAME.setText(seller.getName());
+		txtEMAIL.setText(seller.getEmail());
+		
+		if(seller.getBirth() != null) {
+			txtBIRTH.setValue(LocalDate.ofInstant(seller.getBirth().toInstant(), ZoneId.systemDefault()));
+		}
+		
+		Locale.setDefault(Locale.US);
+		txtSALARY.setText(String.format("%.2f", seller.getSalary()));
 	}
 	
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
 		if(fields.contains("Name")) {
-			errorLabel.setText(errors.get("Name"));
+			errorLabel1.setText(errors.get("Name"));
 		}
 	}
 }

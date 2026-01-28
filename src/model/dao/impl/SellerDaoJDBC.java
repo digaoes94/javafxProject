@@ -143,7 +143,7 @@ public class SellerDaoJDBC implements SellerDao {
 		obj.setName(rs.getString("Name"));
 		obj.setEmail(rs.getString("Email"));
 		obj.setSalary(rs.getDouble("Salary"));
-		obj.setBirth(rs.getDate("Birth"));
+		obj.setBirth(new java.util.Date(rs.getTimestamp("Birth").getTime()));
 		obj.setDepartment(dep);
 		return obj;
 	}
@@ -159,6 +159,7 @@ public class SellerDaoJDBC implements SellerDao {
 	public List<Seller> findAll() {
 		PreparedStatement st = null;
 		ResultSet rs = null;
+		
 		try {
 			st = conn.prepareStatement(
 					"SELECT seller.*,department.Name as DepName "
