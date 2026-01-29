@@ -31,10 +31,11 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.entities.Seller;
+import model.services.DepartmentService;
 import model.services.SellerService;
 
 public class SellerListController implements Initializable, DataChangeListener {
-	private SellerService service;
+	private SellerService sellServ;
 
 	@FXML private TableView<Seller> tableViewSeller;
 	@FXML private TableColumn<Seller, Integer> columnID;
@@ -55,7 +56,7 @@ public class SellerListController implements Initializable, DataChangeListener {
 	private ObservableList<Seller> obsList;
 
 	public void setSellerService(SellerService service) {
-		this.service = service;
+		this.sellServ = service;
 	}
 
 	@Override
@@ -80,11 +81,11 @@ public class SellerListController implements Initializable, DataChangeListener {
 	}
 
 	public void updateTableView() {
-		if(service == null) {
+		if(sellServ == null) {
 			throw new IllegalStateException("Null service.");
 		}
 
-		List<Seller> list = service.findAll();
+		List<Seller> list = sellServ.findAll();
 		obsList = FXCollections.observableArrayList(list);
 		tableViewSeller.setItems(obsList);
 		initEditButtons();
@@ -98,7 +99,8 @@ public class SellerListController implements Initializable, DataChangeListener {
 
 			SellerFormController controller = loader.getController();
 			controller.setSeller(seller);
-			controller.setSellerService(service);
+			controller.setServices(sellServ, new DepartmentService());
+			controller.loadDepartmentList();
 			controller.subscribeDataUpdates(this);
 			controller.updateFormData();
 
@@ -111,6 +113,7 @@ public class SellerListController implements Initializable, DataChangeListener {
 			dialogStage.showAndWait();
 		}
 		catch(IOException e) {
+			e.printStackTrace();
 			Alerts.showAlert("IO exception", "Couldn't load view", e.getMessage(), AlertType.ERROR);
 		}
 	}
@@ -163,12 +166,12 @@ public class SellerListController implements Initializable, DataChangeListener {
 		Optional<ButtonType> answer = Alerts.showConfirmation("Confirmation", "You're sure about this???");
 		
 		if(answer.get() == ButtonType.OK) {
-			if(service == null) {
+			if(sellServ == null) {
 				throw new IllegalStateException("Service can't be null.");
 			}
 			
 			try {
-				service.remove(obj);
+				sellServ.remove(obj);
 				updateTableView();
 			}
 			catch(DbIntegrityException e) {
