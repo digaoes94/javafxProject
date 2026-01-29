@@ -1,9 +1,11 @@
 package gui;
 
 import java.net.URL;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -123,22 +125,41 @@ public class SellerFormController implements Initializable {
 	}
 
 	private Seller getFormData() {
+		Seller seller = new Seller();
 		ValidationException errors = new ValidationException("Validation error");
+		
+		Utils.stringToInteger(txtID.getId());
 
 		if(txtNAME.getText() == null || txtNAME.getText().trim().equals("")) {
 			errors.addError("Name", "Name can't be null.");
 		}
+		seller.setName(txtNAME.getText());
+		
+		if(txtEMAIL.getText() == null || txtEMAIL.getText().trim().equals("")) {
+			errors.addError("Email", "Email can't be null.");
+		}
+		seller.setEmail(txtEMAIL.getText());
+		
+		if(txtBIRTH.getValue() == null) {
+			errors.addError("Birth", "Birth can't be null.");
+		}
+		else {
+			Instant inst = Instant.from(txtBIRTH.getValue().atStartOfDay(ZoneId.systemDefault()));
+			seller.setBirth(Date.from(inst));
+		}
+		
+		if(txtSALARY.getText() == null || txtSALARY.getText().trim().equals("")) {
+			errors.addError("Salary", "Salary can't be null.");
+		}
+		seller.setSalary(Utils.stringToDouble(txtSALARY.getText()));
+		
+		seller.setDepartment(cbDepartments.getValue());
 
 		if(errors.getErrors().size() > 0) {
 			throw errors;
 		}
 
-		return new Seller(
-			Utils.stringToInteger(txtID.getId()),
-			txtNAME.getText(),
-			txtEMAIL.getText(),
-			txtBIRTH
-		);
+		return seller;
 	}
 
 	public void updateFormData() {
@@ -163,14 +184,15 @@ public class SellerFormController implements Initializable {
 		else {
 			cbDepartments.setValue(seller.getDepartment());
 		}
-		
 	}
 
 	private void setErrorMessages(Map<String, String> errors) {
 		Set<String> fields = errors.keySet();
-		if(fields.contains("Name")) {
-			errorLabel1.setText(errors.get("Name"));
-		}
+		
+		errorLabel1.setText((fields.contains("Name") ? errors.get("Name") : ""));
+		errorLabel2.setText((fields.contains("Email") ? errors.get("Email") : ""));
+		errorLabel3.setText((fields.contains("Birth") ? errors.get("Birth") : ""));
+		errorLabel4.setText((fields.contains("Salary") ? errors.get("Salary") : ""));
 	}
 
 	public void loadDepartmentList() {
